@@ -1,0 +1,74 @@
+import pandas as pd
+import numpy as np
+
+df = pd.read_csv("BRICS_data1.csv", encoding = 'iso-8859-1')
+
+df.describe()
+
+df11_4 = df.columns.to_series()
+
+y=df['ReporterName'].unique()
+
+y.shape
+
+data_category_range = df['ReporterName'].unique()
+data_category_range = data_category_range.tolist()
+#Create individual sheets according to countries
+for i,value in enumerate(data_category_range):
+    df[df['ReporterName'] == value].to_csv(r'BRICSCCI_'+str(value)+r'.csv',index = False, na_rep = 'N/A')
+#Calculate Index for respective Country
+for i,value in enumerate(data_category_range):
+    df11 = pd.read_csv(r'BRICSCCI_'+str(value)+r'.csv')
+    df11 = df11.dropna(axis ='columns', how ='all')
+    x = df11.shape
+    df11.loc[x[0],8:] = np.sum(df11)
+    df11_1=df11.copy()
+    
+    for i in range(x[1]-8):
+        for j in range(x[0]+1):
+            df11_1.iloc[j,i+8]=(df11.iloc[j,i+8])**2
+    
+    df11_2 = df11_1.copy()
+    for i in range(x[1]-8):
+        for j in range(x[0]+1):
+            df11_2.iloc[j,i+8]=(df11_1.iloc[j,i+8]/df11_1.iloc[x[0],i+8])
+            
+    df11_2.loc[x[0]+1,8:] = np.sqrt(np.sum(df11_2)-1)
+    df11_3 = df11_2.iloc[x[0]+1,8:]
+    
+    df11_4 = pd.concat([df11_4, df11_3], axis=1)
+
+df.shape 
+
+df11_4.to_csv("BRICSCCI_result1.csv", mode = "w", header = False) 
+
+l = y.tolist()
+
+df11_6 = pd.DataFrame(l)
+
+df11_7 = df11_6.transpose()
+
+df11_7.to_csv("Countries_BRICS.csv")
+
+countries = pd.read_csv("Countries_BRICS.csv")
+
+y = countries.loc[0]
+#Extract the data for specific countries.
+for i in range(2):
+    df = pd.read_csv("{}.csv".format(i+6))
+    df[df["Country"].isin(y)].to_csv("BRICS_result2.csv", mode = "a") 
+
+df2 = pd.read_csv("BRICS_result2.csv")
+df1 = pd.read_csv("BRICS_compiled_indicators_result1.csv")
+df3 = df1.append(df2, sort= True)
+df3.to_csv("BRICS_compiled_indicators_result2.csv", index = False)
+
+df3.head()
+
+df4 = df3.pivot(index='Country Name', columns='Indicator Name')
+df4.head()
+
+df4.columns
+#Reshaping the data
+df4 = df4.stack(0).swaplevel(0,1).sort_index()
+df4.to_csv("BRICS_compiled_indicators_result4.csv")

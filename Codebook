@@ -70,5 +70,5 @@ df4.head()
 
 df4.columns
 #Reshaping the data
-df4 = df4.stack(0).swaplevel(0,1).sort_index()
+df4 = df4.stack(0).swaplevel(0,1)#.sort_index()
 df4.to_csv("BRICS_compiled_indicators_result4.csv")

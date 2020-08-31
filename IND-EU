@@ -1,0 +1,13 @@
+import pandas as pd
+import openpyxl
+#deleting unnecessary excel sheets
+list2 = []
+for i in range(3,848,2):
+    list2.append("Data"+str(i))
+    
+wb_1 =openpyxl.load_workbook('IND-EU trade.xlsx')
+
+for i in list2:
+    del wb_1[i]
+
+wb_1.save('IND-EU_updated.xlsx')
